@@ -3,9 +3,13 @@ from sqlalchemy.orm import Session
 
 from .database import engine, Base, SessionLocal
 from .models.user import User
+from .models.project import Project
+
+# Routersss 
+from .routers.project import router as project_router
 from .routers.user import router as user_router
 from .services.refresh_token import (save_refresh_token,verify_refresh_token,refresh_access_token)
-
+from .routers.project_member import router as project_member_router
 app = FastAPI(
     title="TaskFlow AI"
 )
@@ -13,8 +17,10 @@ app = FastAPI(
 
 Base.metadata.create_all(bind=engine)
 
+# fuctio Routes
 app.include_router(user_router)
-
+app.include_router(project_router)
+app.include_router(project_member_router)
 
 def get_db():
     db = SessionLocal()
