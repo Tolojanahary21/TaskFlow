@@ -164,10 +164,74 @@ def get_project_task(
 
     return task
 # Update task
-@router.patch(
-    "/{task_id}",
-    response_model=TaskResponse
-)
+@router.patch("/{task_id}", response_model=TaskResponse)
+def update_task(
+    project_id: int,
+    task_id: int,
+    data: TaskUpdate,
+    db: Session = Depends(get_db),
+):
+    project = db.query(Project).filter(Project.id == project_id).first()
+
+    if not project:
+        raise HTTPException(
+            status_code=404,
+            detail="Project not found"
+        )
+
+    task = (
+        db.query(Task)
+        .filter(
+            Task.id == task_id,
+            Task.project_id == project_id
+        )
+        .first()
+    )
+
+    if not task:
+        raise HTTPException(
+            status_code=404,
+            detail="Task not found"
+        )
+
+    changes = []
+
+    update_data = data.model_dump(exclude_unset=True)
+
+    for field, new_value in update_data.items():
+        old_value = getattr(task, field)
+
+        if old_value != new_value:
+            changes.append(
+                (
+                    field,
+                    str(old_value) if old_value is not None else None,
+                    str(new_value) if new_value is not None else None,
+                )
+            )
+
+            setattr(task, field, new_value)
+
+    if not changes:
+        return task
+
+    for field, old_value, new_value in changes:
+        create_history(
+            db=db,
+            task_id=task.id,
+            user_id=None,
+            action="UPDATED",
+            old_value=f"{field}: {old_value}",
+            new_value=f"{field}: {new_value}",
+        )
+
+    db.commit()
+    db.refresh(task)
+
+    return task
+
+
+
 def update_project_task(
     project_id: int,
     task_id: int,

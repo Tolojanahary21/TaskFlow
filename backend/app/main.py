@@ -13,6 +13,8 @@ from .routers.project_member import router as project_member_router
 from .routers.task_status import router as task_status_router
 from .routers.task import router as task_router
 from .routers.task_history import router as task_history_router
+from .routers.task_dependencies import router as task_dependencies_router
+from .routers.subtasks import router as subtasks_router
 
 
 app = FastAPI(title="TaskFlow AI")
@@ -27,6 +29,9 @@ app.include_router(project_member_router)
 app.include_router(task_status_router)
 app.include_router(task_router)
 app.include_router(task_history_router)
+app.include_router(task_dependencies_router)
+app.include_router(subtasks_router)
+
 
 
 def get_db():
