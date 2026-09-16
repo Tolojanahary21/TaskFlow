@@ -10,17 +10,29 @@ from .routers.project import router as project_router
 from .routers.user import router as user_router
 from .services.refresh_token import (save_refresh_token,verify_refresh_token,refresh_access_token)
 from .routers.project_member import router as project_member_router
-app = FastAPI(
-    title="TaskFlow AI"
-)
+from .routers.task_status import router as task_status_router
+from .routers.task import router as task_router
+from .routers.task_history import router as task_history_router
+from .routers.task_dependencies import router as task_dependencies_router
+from .routers.subtasks import router as subtasks_router
+
+
+app = FastAPI(title="TaskFlow AI")
 
 
 Base.metadata.create_all(bind=engine)
 
-# fuctio Routes
+# fuction Routes
 app.include_router(user_router)
 app.include_router(project_router)
 app.include_router(project_member_router)
+app.include_router(task_status_router)
+app.include_router(task_router)
+app.include_router(task_history_router)
+app.include_router(task_dependencies_router)
+app.include_router(subtasks_router)
+
+
 
 def get_db():
     db = SessionLocal()
